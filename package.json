@@ -17,7 +17,7 @@
   "license": "MIT",
   "name": "s9s-jsdox",
   "description": "Simple JSDoc 3 to Markdown generator",
-  "version": "0.4.11",
+  "version": "0.4.16",
   "repository": {
     "type": "git",
     "url": "git://github.com/simon-s9/s9s-jsdox.git"

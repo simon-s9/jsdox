@@ -79,11 +79,19 @@ function printVersion() {
  * @param  {String}   filename
  * @param  {String}   destination
  * @param  {String}   templateDir
- * @param  {Function} cb
+ * @param  {Function} callback
  * @param  {Function} fileCb
  * @param  {Object}   argvOverride
+ * @param  {String}   indexFile
  */
-function generateForDir(filename, destination, templateDir, cb, fileCb, argvOverride) {
+function generateForDir(filename, destination, templateDir, callback, fileCb, argvOverride, indexFile) {
+  if (typeof (indexFile) === 'boolean') {
+    indexFile = 'README';
+  }
+  if (typeof (indexFile) === 'undefined') {
+    indexFile = false;
+  }
+
   var waiting = 0;
   var touched = 0;
   var error = null;
@@ -100,6 +108,17 @@ function generateForDir(filename, destination, templateDir, cb, fileCb, argvOver
     });
     return filelist;
   };
+
+  function cb() {
+    if (indexFile !== false) {
+      createIndex({
+        output: destination,
+        index: indexFile,
+        templateDir: templateDir
+      });
+    }
+    callback();
+  }
 
   function mkdirParentSync(dirPath) {
     try {
@@ -192,9 +211,15 @@ function generateForDir(filename, destination, templateDir, cb, fileCb, argvOver
     });
   }
 
-  for (var i in argvOverride) {
-    if (argvOverride.hasOwnProperty(i)) {
-      argv[i] = argvOverride[i];
+  function isJsFile(fileName) {
+    return /^.+\.js$/.test(fileName);
+  }
+
+  if (typeof (argvOverride) === 'object') {
+    for (var i in argvOverride) {
+      if (argvOverride.hasOwnProperty(i)) {
+        argv[i] = argvOverride[i];
+      }
     }
   }
 
@@ -207,6 +232,9 @@ function generateForDir(filename, destination, templateDir, cb, fileCb, argvOver
         if (!err && s.isDirectory()) {
           var contentList = readdirSyncRec(filename);
           contentList.forEach(function(fileFullPath) {
+            if (!isJsFile(fileFullPath)) {
+              return;
+            }
             if (argv.rr) {
               //create the sub-directories
               try {
@@ -295,6 +323,24 @@ function loadConfigFile(file, argv, callback) {
   });
 }
 
+function createIndex(argv) {
+  //create index
+  if (argv.index) {
+    var fileName;
+    if (argv.index === true) {
+      fileName = 'index';
+    } else {
+      fileName = argv.index;
+    }
+    if (typeof argv.output === 'string') {
+      fileName = path.join(argv.output, fileName);
+    } else {
+      fileName = path.join('output', fileName);
+    }
+    fs.writeFileSync(fileName + '.md', generateMD(index, argv.templateDir, true, argv['index-sort']));
+  }
+}
+
 function main(argv) {
   if (typeof argv._[0] !== 'undefined') {
     fs.mkdir(argv.output, function() {
@@ -313,21 +359,7 @@ function main(argv) {
         return deferred.promise;
       }))
         .then(function() {
-          //create index
-          if (argv.index) {
-            var fileName;
-            if (argv.index === true) {
-              fileName = 'index';
-            } else {
-              fileName = argv.index;
-            }
-            if (typeof argv.output === 'string') {
-              fileName = path.join(argv.output, fileName);
-            } else {
-              fileName = path.join('output', fileName);
-            }
-            fs.writeFileSync(fileName + '.md', generateMD(index, argv.templateDir, true, argv['index-sort']));
-          }
+          createIndex(argv);
         })
         .then(function () {
           console.log('jsdox completed');
