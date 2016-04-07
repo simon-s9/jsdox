@@ -8,15 +8,19 @@
       "name": "Marc Trudel",
       "email": "mtrudel@wizcorp.jp",
       "web": "http://www.wizcorp.jp"
+    },
+    {
+      "name": "Simon Kamenetskiy",
+      "email": "skamenetskiy@icloud.com"
     }
   ],
   "license": "MIT",
-  "name": "jsdox",
+  "name": "s9s-jsdox",
   "description": "Simple JSDoc 3 to Markdown generator",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "repository": {
     "type": "git",
-    "url": "git://github.com/sutoiku/jsdox.git"
+    "url": "git://github.com/simon-s9/jsdox.git"
   },
   "main": "./jsdox.js",
   "files": [

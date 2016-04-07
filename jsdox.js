@@ -81,8 +81,9 @@ function printVersion() {
  * @param  {String}   templateDir
  * @param  {Function} cb
  * @param  {Function} fileCb
+ * @param  {Object}   argvOverride
  */
-function generateForDir(filename, destination, templateDir, cb, fileCb) {
+function generateForDir(filename, destination, templateDir, cb, fileCb, argvOverride) {
   var waiting = 0;
   var touched = 0;
   var error = null;
@@ -189,6 +190,12 @@ function generateForDir(filename, destination, templateDir, cb, fileCb) {
         }
       }
     });
+  }
+
+  for (var i in argvOverride) {
+    if (argvOverride.hasOwnProperty(i)) {
+      argv[i] = argvOverride[i];
+    }
   }
 
   if (filename.match(/\.js$/)) {
